@@ -1,44 +1,72 @@
 import os, shutil
 
-# Check name files
-def CheckFilesName(file):
 
-    global FileNameValid
-
-    try :
-        if '_' in file :
-            FileNameValid = True
-    except :
-        FileNameValid = False
 
 #remove unwanted directories
 def RemoveFolders():
     RemovedFolders = 0
     global Files
 
-    for i in range(len(Files) - 1):
+    for n in range(len(Files)):
 
-        if os.path.isfile(os.path.join(FilesPath, Files[i - RemovedFolders])) == False:
-            del Files[i - RemovedFolders]
+        if os.path.isfile(os.path.join(FilesPath, Files[n - RemovedFolders])) == False:
+            del Files[n - RemovedFolders]
             RemovedFolders += 1
 
 
+def CheckFile(FileName_bis):
+
+    global FilesPath
+    global Prefix
+    global SM_FileExtensions
+    global T_FileExtensions
+
+    ## Check file size if not void
+    if (os.path.getsize(os.path.join(FilesPath, FileName_bis))) == 0:
+        return " contain nothing, the file size is 0."
+
+    ## Check for unwanted space characters
+    elif ' ' in FileName_bis:
+        return " contain a space character which need to be removed."
+    
+    ## Check if there is any Valid Prefix
+    for y in range(len(Prefix)):
+        if Prefix[y] == FileName_bis[0 : len(Prefix[y])]:
+            
+            ## Verify file extensions for SM_ prefix 
+            if y == 0:
+                for x in range(len(SM_FileExtensions)):
+                    if SM_FileExtensions[x] == FileName_bis[len(FileName_bis) - (len(SM_FileExtensions[x])) : len(FileName_bis)]:
+                        return
+                return " contain an invalid or not registered file type."
+            
+            ## Verify file extension for T_ prefix
+            elif y == 1:
+                for x in range(len(T_FileExtensions)):
+                    if T_FileExtensions[x] == FileName_bis[len(FileName_bis) - (len(T_FileExtensions[x])) : len(FileName_bis)]:
+                        return
+                return " contain an invalid or not registered file type."
+
+    return " contain no valid prefix."
 
 
-FilesPath = 'F:/Perso/Python/SortingFiles/Files'
-OrganisedFilesPath = 'F:/Perso/Python/SortingFiles/OrganisedFiles'
+
+FilesPath = 'F:\Perso\Python\AutoSort-Check-Files\Files'
+OrganisedFilesPath = 'F:\Perso\Python\AutoSort-Check-Files\OrganisedFiles'
 Files = os.listdir(FilesPath)
-FileNameValid = False
 
+Prefix = ('SM_', 'T_')
+SM_FileExtensions = ('.fbx')
+T_FileExtensions = ('.png')
 
 RemoveFolders()
 
 for i in range(len(Files)):
     FileName = Files[i]
 
-    CheckFilesName(FileName)
+    Error = CheckFile(FileName)
 
-    if FileNameValid == True:
+    if Error == None:
 
         #remove prefix and suffix to get ObjectName
         FileObject = str(FileName[FileName.index('_') + 1 : len(FileName)])
@@ -55,6 +83,7 @@ for i in range(len(Files)):
         if FilePrefix == 'SM':
             if os.path.exists(os.path.join(OrganisedFilesPath, FileObject + '/StaticMeshs')) == False:
                 os.mkdir(os.path.join(OrganisedFilesPath, FileObject + '/StaticMeshs'))
+        
         elif FilePrefix == 'T':
             if os.path.exists(os.path.join(OrganisedFilesPath, FileObject + '/Textures')) == False:
                 os.mkdir(os.path.join(OrganisedFilesPath, FileObject + '/Textures'))
@@ -63,9 +92,10 @@ for i in range(len(Files)):
         if FilePrefix == 'SM':
             shutil.move(os.path.join(FilesPath, Files[i]),
                         os.path.join(OrganisedFilesPath, FileObject + '/StaticMeshs'))
+       
         elif FilePrefix == 'T':    
             shutil.move(os.path.join(FilesPath, Files[i]),
                         os.path.join(OrganisedFilesPath, FileObject + '/Textures'))
     
     else:
-        print(FileName + " file, contains an error in it's name.")
+        print("The file named " + FileName + Error)
