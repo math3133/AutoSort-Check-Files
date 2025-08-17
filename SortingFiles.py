@@ -2,7 +2,7 @@ import os, shutil
 
 
 
-#remove unwanted directories
+## Remove unwanted directories
 def RemoveFolders():
     RemovedFolders = 0
     global Files
@@ -68,17 +68,22 @@ for i in range(len(Files)):
 
     if Error == None:
 
-        #remove prefix and suffix to get ObjectName
+        ## Remove prefix to get Object Name
         FileObject = str(FileName[FileName.index('_') + 1 : len(FileName)])
+        
+        ## Remove extension
+        FileObject = str(FileObject[0 : FileObject.index('.')])
+        
+        ## Remove suffix if there is any
         if '_' in FileObject:
             FileObject = FileObject[0 : FileObject.index('_')]
 
 
-        #check if object folder exist and create it if needed
+        ## Check if object folder exist and create it if needed
         if os.path.exists(os.path.join(OrganisedFilesPath, FileObject)) == False:
             os.mkdir(os.path.join(OrganisedFilesPath, FileObject))
 
-        #check if object type folder exist and create it if needed
+        ## Check if object type folder exist and create it if needed
         FilePrefix = str(FileName[0 : FileName.index('_')])
         if FilePrefix == 'SM':
             if os.path.exists(os.path.join(OrganisedFilesPath, FileObject + '/StaticMeshs')) == False:
@@ -88,7 +93,7 @@ for i in range(len(Files)):
             if os.path.exists(os.path.join(OrganisedFilesPath, FileObject + '/Textures')) == False:
                 os.mkdir(os.path.join(OrganisedFilesPath, FileObject + '/Textures'))
 
-        #move file in folders created
+        ## Move file in folders created
         if FilePrefix == 'SM':
             shutil.move(os.path.join(FilesPath, Files[i]),
                         os.path.join(OrganisedFilesPath, FileObject + '/StaticMeshs'))
