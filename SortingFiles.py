@@ -1,28 +1,27 @@
 import os, shutil
 
 
-
 ## Remove unwanted directories
-def RemoveFolders():
+def RemoveFolders(FilesPath_bis):
     RemovedFolders = 0
     global Files
 
     for n in range(len(Files)):
 
-        if os.path.isfile(os.path.join(FilesPath, Files[n - RemovedFolders])) == False:
+        if os.path.isfile(os.path.join(FilesPath_bis, Files[n - RemovedFolders])) == False:
             del Files[n - RemovedFolders]
             RemovedFolders += 1
 
 
-def CheckFile(FileName_bis):
+def CheckFile(FileName_bis, FilesPath_bis):
 
-    global FilesPath
     global Prefix
     global SM_FileExtensions
     global T_FileExtensions
 
+
     ## Check file size if not void
-    if (os.path.getsize(os.path.join(FilesPath, FileName_bis))) == 0:
+    if (os.path.getsize(os.path.join(FilesPath_bis, FileName_bis))) == 0:
         return " contain nothing, the file size is 0."
 
     ## Check for unwanted space characters
@@ -49,58 +48,66 @@ def CheckFile(FileName_bis):
 
     return " contain no valid prefix."
 
+def main(FilesPath : str, OrganisedFilesPath : str) -> None:
 
+    global Files
+    global Prefix
+    global SM_FileExtensions
+    global T_FileExtensions
 
-FilesPath = 'F:\Perso\Python\AutoSort-Check-Files\Files'
-OrganisedFilesPath = 'F:\Perso\Python\AutoSort-Check-Files\OrganisedFiles'
-Files = os.listdir(FilesPath)
+    Files = os.listdir(FilesPath)
 
-Prefix = ('SM_', 'T_')
-SM_FileExtensions = ('.fbx')
-T_FileExtensions = ('.png')
+    Prefix  = ('SM_', 'T_')
+    SM_FileExtensions  = ('.fbx')
+    T_FileExtensions = ('.png')
 
-RemoveFolders()
+    logs = []
 
-for i in range(len(Files)):
-    FileName = Files[i]
+    RemoveFolders(FilesPath)
 
-    Error = CheckFile(FileName)
+    for i in range(len(Files)):
+        FileName = Files[i]
 
-    if Error == None:
+        Error = CheckFile(FileName, FilesPath)
 
-        ## Remove prefix to get Object Name
-        FileObject = str(FileName[FileName.index('_') + 1 : len(FileName)])
+        if Error == None:
+
+            ## Remove prefix to get Object Name
+            FileObject = str(FileName[FileName.index('_') + 1 : len(FileName)])
         
-        ## Remove extension
-        FileObject = str(FileObject[0 : FileObject.index('.')])
+            ## Remove extension
+            FileObject = str(FileObject[0 : FileObject.index('.')])
         
-        ## Remove suffix if there is any
-        if '_' in FileObject:
-            FileObject = FileObject[0 : FileObject.index('_')]
+            ## Remove suffix if there is any
+            if '_' in FileObject:
+                FileObject = FileObject[0 : FileObject.index('_')]
 
 
-        ## Check if object folder exist and create it if needed
-        if os.path.exists(os.path.join(OrganisedFilesPath, FileObject)) == False:
-            os.mkdir(os.path.join(OrganisedFilesPath, FileObject))
+            ## Check if object folder exist and create it if needed
+            if os.path.exists(os.path.join(OrganisedFilesPath, FileObject)) == False:
+                os.mkdir(os.path.join(OrganisedFilesPath, FileObject))
 
-        ## Check if object type folder exist and create it if needed
-        FilePrefix = str(FileName[0 : FileName.index('_')])
-        if FilePrefix == 'SM':
-            if os.path.exists(os.path.join(OrganisedFilesPath, FileObject + '/StaticMeshs')) == False:
-                os.mkdir(os.path.join(OrganisedFilesPath, FileObject + '/StaticMeshs'))
+            ## Check if object type folder exist and create it if needed
+            FilePrefix = str(FileName[0 : FileName.index('_')])
+            if FilePrefix == 'SM':
+                if os.path.exists(os.path.join(OrganisedFilesPath, FileObject + '/StaticMeshs')) == False:
+                    os.mkdir(os.path.join(OrganisedFilesPath, FileObject + '/StaticMeshs'))
         
-        elif FilePrefix == 'T':
-            if os.path.exists(os.path.join(OrganisedFilesPath, FileObject + '/Textures')) == False:
-                os.mkdir(os.path.join(OrganisedFilesPath, FileObject + '/Textures'))
+            elif FilePrefix == 'T':
+                if os.path.exists(os.path.join(OrganisedFilesPath, FileObject + '/Textures')) == False:
+                    os.mkdir(os.path.join(OrganisedFilesPath, FileObject + '/Textures'))
 
-        ## Move file in folders created
-        if FilePrefix == 'SM':
-            shutil.move(os.path.join(FilesPath, Files[i]),
-                        os.path.join(OrganisedFilesPath, FileObject + '/StaticMeshs'))
+            ## Move file in folders created
+            if FilePrefix == 'SM':
+                shutil.move(os.path.join(FilesPath, Files[i]),
+                            os.path.join(OrganisedFilesPath, FileObject + '/StaticMeshs'))
        
-        elif FilePrefix == 'T':    
-            shutil.move(os.path.join(FilesPath, Files[i]),
-                        os.path.join(OrganisedFilesPath, FileObject + '/Textures'))
+            elif FilePrefix == 'T':    
+                shutil.move(os.path.join(FilesPath, Files[i]),
+                            os.path.join(OrganisedFilesPath, FileObject + '/Textures'))
     
-    else:
-        print("The file named " + FileName + Error)
+        else:
+            logs.append("The file named " + FileName + Error)
+    
+    logs.append("----Execution Ended----")
+    return logs

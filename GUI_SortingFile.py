@@ -1,14 +1,15 @@
 import tkinter as tk
 from tkinter.filedialog import askdirectory
+import SortingFiles
 
 
 
 class Application(tk.Tk):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.title("Sorting Files")
         self.resizable(False,True)
-        self.geometry("450x600")
+        self.geometry("400x550")
 
         ## Weight expand for frames
         self.columnconfigure(0, weight=1)
@@ -37,16 +38,23 @@ class Application(tk.Tk):
         self.FeedbackClear = tk.Button(self.FeedbackFrame, text="Clear Log", command=self.ClearLogs)
         self.FeedbackClear.grid(column=0, row=1, sticky="e", padx=5)
 
-        self.ExecButton = tk.Button(self.FeedbackFrame, text="Organise Files")
+        self.ExecButton = tk.Button(self.FeedbackFrame, text="Sort Files", command=self.SortFiles)
         self.ExecButton.grid(column=1, row=1, sticky="w", padx=5)
     
-    def ClearLogs(self):
+    def ClearLogs(self) -> None:
         self.FeedbackListbox.delete(0, tk.END)
+
+    def SortFiles(self) -> None:
+        logs = SortingFiles.main(self.FilesOrigin.FolderPath, self.FolderAim.FolderPath)
+        
+        for i in range(len(logs)):
+            self.FeedbackListbox.insert(tk.END, logs[i])
+
 
 
 ## Frame for directory path 
 class FolderPath(tk.Frame):
-    def __init__(self, parent, ButtonText : str):
+    def __init__(self, parent, ButtonText : str) -> None:
         super().__init__(parent)
 
         ## Weight expand for objects in frame
@@ -61,8 +69,8 @@ class FolderPath(tk.Frame):
         self.selectfolder.grid(column=1, row=0)
 
     ## Get folder path from button and register it in variable
-    def GetFolderPath(self):
-        self.FolderPath = askdirectory()
+    def GetFolderPath(self) -> None:
+        self.FolderPath : str = askdirectory()
         self.path.delete(0,tk.END)
         self.path.insert(0, self.FolderPath)
 
